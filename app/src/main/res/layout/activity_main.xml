@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    android:background="@color/ScreenBackgroundActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:backgroundTint="@color/BackgroundColorToolBar"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:title="@string/nameTitleSearchLayout"
+        app:titleTextColor="@color/TextColorToolBarScreen" />
+
+    <EditText
+        android:id="@+id/editTextSearch"
+        style="@style/EditViewSearchActivity"
+        android:hint="@string/TextSearchMainLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar_search"
+        tools:ignore="RtlSymmetry"
+        android:ellipsize="end"
+        android:imeOptions="actionDone"
+        android:singleLine="true">
+
+    </EditText>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/imClearEditText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        app:icon="@drawable/ic_baseline_close_24"
+
+        app:iconGravity="end"
+        app:layout_constraintEnd_toEndOf="@+id/editTextSearch"
+        app:layout_constraintTop_toTopOf="@+id/editTextSearch"
+        tools:ignore="SpeakableTextPresentCheck"
+        android:stateListAnimator="@null"
+        android:background="?android:attr/selectableItemBackground"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewSearch"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextSearch"
+        app:layout_constraintVertical_bias="0.01999998" />
+
+    <ImageView
+        android:id="@+id/placeHolder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/recyclerViewSearch"
+        app:layout_constraintStart_toStartOf="@+id/recyclerViewSearch"
+        app:layout_constraintTop_toBottomOf="@+id/editTextSearch"
+        app:srcCompat="@drawable/not_found_light_mode" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

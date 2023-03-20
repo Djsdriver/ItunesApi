@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="EditViewSearchActivity">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:background">@drawable/ede</item>
+        <item name="android:backgroundTint">@color/backgroundTintEditSearch</item>
+        <item name="android:drawableStart">@drawable/ic_baseline_search_24</item>
+
+        <item name="android:drawablePadding">5dp</item>
+        <item name="android:ems">10</item>
+        <item name="android:lines">@integer/material_motion_duration_long_1</item>
+        <item name="android:inputType">textPersonName</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:textColor">@color/black</item>
+
+    </style>
+
+    <color name="backgroundTintEditSearch">#ECD1CF</color>
+</resources>
