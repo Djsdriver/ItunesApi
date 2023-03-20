@@ -4,4 +4,6 @@
     <string name="TextSearchMainLayout">Поиск</string>
     <string name="nothing_found">Ничего не найдено</string>
     <string name="something_went_wrong">Позже</string>
+    <string name="server_error">Ошибка сервера</string>
+    <string name="bad_connection">Плохое соединение</string>
 </resources>

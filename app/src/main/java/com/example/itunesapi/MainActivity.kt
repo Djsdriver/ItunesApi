@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.itunesapi.databinding.ActivityMainBinding
 
+
 import com.example.itunesapi.retrofit.Track
 import com.example.itunesapi.retrofit.TrackApi
 import com.example.itunesapi.retrofit.TrackResultResponse
@@ -75,6 +76,24 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerViewSearch.adapter=adapter
         adapter.tracks=listSong
 
+        fun showPlaceholder(flag: Boolean?, message: String = "") = with(binding){
+            if (flag != null) {
+                if (flag == true) {
+                    badConnectionWidget.visibility = View.GONE
+                    notFoundWidget.visibility = View.VISIBLE
+                } else {
+                    notFoundWidget.visibility = View.GONE
+                    badConnectionWidget.visibility = View.VISIBLE
+                    badConnection.text = message
+                }
+                listSong.clear()
+                adapter.notifyDataSetChanged()
+            } else {
+                notFoundWidget.visibility = View.GONE
+                badConnectionWidget.visibility = View.GONE
+            }
+        }
+
 
 
         binding.editTextSearch.setOnEditorActionListener { _, actionId, _ ->
@@ -86,27 +105,22 @@ class MainActivity : AppCompatActivity() {
                             when(response.code()) {
                                 200 -> {
                                     if (response.body()?.results?.isNotEmpty() == true) {
-                                        listSong.clear()
-                                        binding.recyclerViewSearch.visibility=View.VISIBLE
-                                        binding.placeHolder.visibility=View.GONE
                                         listSong.addAll(response.body()?.results!!)
                                         adapter.notifyDataSetChanged()
+                                        showPlaceholder(null)
                                     } else {
-                                        binding.recyclerViewSearch.visibility=View.GONE
-                                        binding.placeHolder.visibility=View.VISIBLE
+                                        showPlaceholder(true)
                                     }
                                 }
                                 else -> {
-                                    binding.recyclerViewSearch.visibility=View.GONE
-                                    binding.placeHolder.visibility=View.VISIBLE
+                                    showPlaceholder(false, getString(R.string.server_error))
                                 }
                             }
 
                         }
 
                         override fun onFailure(call: Call<TrackResultResponse>, t: Throwable) {
-                            binding.recyclerViewSearch.visibility=View.GONE
-                            binding.placeHolder.visibility=View.VISIBLE
+                            showPlaceholder(false, getString(R.string.bad_connection))
                         }
 
                     })
