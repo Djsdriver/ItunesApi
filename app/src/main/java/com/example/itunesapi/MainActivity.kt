@@ -19,11 +19,14 @@ import com.example.itunesapi.databinding.ActivityMainBinding
 import com.example.itunesapi.retrofit.Track
 import com.example.itunesapi.retrofit.TrackApi
 import com.example.itunesapi.retrofit.TrackResultResponse
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.HTTP
 import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
@@ -32,7 +35,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     val adapter=TrackAdapter()
-    val listSong= ArrayList<Track>()
 
     companion object {
         const val KEY_EDIT_TEXT = "KEY_EDIT_TEXT"
@@ -47,8 +49,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    val retrofit=Retrofit.Builder().baseUrl(BASE_URL).addConverterFactory(GsonConverterFactory.create()).build()
-    val itemTrack=retrofit.create(TrackApi::class.java)
 
 
 
@@ -74,7 +74,16 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         binding.recyclerViewSearch.layoutManager=LinearLayoutManager(this)
         binding.recyclerViewSearch.adapter=adapter
-        adapter.tracks=listSong
+
+
+        val interceptor = HttpLoggingInterceptor()
+        interceptor.level = HttpLoggingInterceptor.Level.BODY
+        val client = OkHttpClient.Builder()
+            .addInterceptor(interceptor)
+            .build()
+        val retrofit=Retrofit.Builder().baseUrl(BASE_URL).client(client).addConverterFactory(GsonConverterFactory.create()).build()
+        val itemTrack=retrofit.create(TrackApi::class.java)
+
 
         fun showPlaceholder(flag: Boolean?, message: String = "") = with(binding){
             if (flag != null) {
@@ -86,8 +95,7 @@ class MainActivity : AppCompatActivity() {
                     badConnectionWidget.visibility = View.VISIBLE
                     badConnection.text = message
                 }
-                listSong.clear()
-                adapter.notifyDataSetChanged()
+                adapter.clear()
             } else {
                 notFoundWidget.visibility = View.GONE
                 badConnectionWidget.visibility = View.GONE
@@ -103,24 +111,28 @@ class MainActivity : AppCompatActivity() {
                     .enqueue(object : Callback<TrackResultResponse>{
                         override fun onResponse(call: Call<TrackResultResponse>, response: Response<TrackResultResponse>) {
                             when(response.code()) {
-                                200 -> {
+                                 HttpCodeResult.SUCCESS.code-> {
                                     if (response.body()?.results?.isNotEmpty() == true) {
-                                        listSong.addAll(response.body()?.results!!)
-                                        adapter.notifyDataSetChanged()
+                                        adapter.setTrackList(response.body()!!.results)
                                         showPlaceholder(null)
+                                        Log.d("MyLog", "${response.code()}")
                                     } else {
                                         showPlaceholder(true)
+                                        Log.d("MyLog", "${response.code()}")
                                     }
                                 }
-                                else -> {
+                                HttpCodeResult.ERROR.code -> {
                                     showPlaceholder(false, getString(R.string.server_error))
+                                    Log.d("MyLog", "${response.code()}")
                                 }
                             }
 
                         }
 
                         override fun onFailure(call: Call<TrackResultResponse>, t: Throwable) {
+
                             showPlaceholder(false, getString(R.string.bad_connection))
+                            Log.d("MyLog", "${t.message}")
                         }
 
                     })
@@ -129,23 +141,11 @@ class MainActivity : AppCompatActivity() {
             false
         }
 
-       fun showMessage(text: String, additionalMessage: String) {
-            if (text.isNotEmpty()) {
-                listSong.clear()
-                adapter.notifyDataSetChanged()
-                if (additionalMessage.isNotEmpty()) {
-                    Toast.makeText(applicationContext, additionalMessage, Toast.LENGTH_LONG)
-                        .show()
-                }
-            }
-        }
-
 
 
         binding.imClearEditText.setOnClickListener {
             binding.editTextSearch.setText("")
-            listSong.clear()
-            adapter.notifyDataSetChanged()
+            adapter.clear()
             val inputMethodManager =
                 getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
             inputMethodManager?.hideSoftInputFromWindow(binding.editTextSearch.windowToken, 0)
