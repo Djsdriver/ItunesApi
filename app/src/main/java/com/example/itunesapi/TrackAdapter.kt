@@ -10,22 +10,12 @@ import com.example.itunesapi.retrofit.Track
 
 class TrackAdapter: RecyclerView.Adapter<TrackHolder>() {
     var tracks=ArrayList<Track>()
-
-
-
-    private  val diff= object : DiffUtil.ItemCallback<Track>(){
-        override fun areItemsTheSame(oldItem: Track, newItem: Track): Boolean {
-            return oldItem.artistName==newItem.artistName
+        set(newTracks) {
+            val diffCallback = TracksDiffCallback(field, newTracks)
+            val diffResult = DiffUtil.calculateDiff(diffCallback)
+            field = newTracks
+            diffResult.dispatchUpdatesTo(this)
         }
-
-        override fun areContentsTheSame(oldItem: Track, newItem: Track): Boolean {
-            return oldItem==newItem
-        }
-
-    }
-
-    val differ=AsyncListDiffer(this, diff)
-
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder {
