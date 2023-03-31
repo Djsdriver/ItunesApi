@@ -3,12 +3,11 @@ package com.example.itunesapi
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.itunesapi.retrofit.Track
 
-class TrackAdapter: RecyclerView.Adapter<TrackHolder>() {
+class TrackAdapter(val listener: ClickListener): RecyclerView.Adapter<TrackHolder>() {
     var tracks=ArrayList<Track>()
         set(newTracks) {
             val diffCallback = TracksDiffCallback(field, newTracks)
@@ -17,6 +16,9 @@ class TrackAdapter: RecyclerView.Adapter<TrackHolder>() {
             diffResult.dispatchUpdatesTo(this)
         }
 
+    var historyList=ArrayList<Track>()
+
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder {
         val view=LayoutInflater.from(parent.context).inflate(R.layout.item_track,parent,false)
@@ -24,7 +26,7 @@ class TrackAdapter: RecyclerView.Adapter<TrackHolder>() {
     }
 
     override fun onBindViewHolder(holder: TrackHolder, position: Int) {
-       holder.bind(tracks[position])
+       holder.bind(tracks[position],listener)
         /*holder.bind(differ.currentList[position])
         holder.setIsRecyclable(false)*/
     }
@@ -38,6 +40,15 @@ class TrackAdapter: RecyclerView.Adapter<TrackHolder>() {
 
     fun setTrackList(list: List<Track>){
         tracks.clear()
+        tracks.addAll(list)
+        notifyDataSetChanged()
+    }
+
+    fun interface ClickListener {
+        fun onClick(track: List<Track>)
+    }
+
+    fun setHistoryList(list: List<Track>){
         tracks.addAll(list)
         notifyDataSetChanged()
     }

@@ -29,7 +29,7 @@ class TrackHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         artworkUrl100=itemView.findViewById(R.id.imArtworkUrl100)
     }
 
-    fun bind(track: Track){
+    fun bind(track: Track, listener:TrackAdapter.ClickListener){
         val data= SimpleDateFormat("mm:ss", Locale.getDefault()).format(track.trackTimeMillis.toInt())
         trackName.text=track.trackName
         artistName.text=track.artistName
@@ -39,6 +39,9 @@ class TrackHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
             .centerCrop()
             .transform(RoundedCorners(10))
             .into(artworkUrl100)
+        itemView.setOnClickListener {
+            listener.onClick(listOf(track))
+        }
     }
 
 

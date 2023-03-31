@@ -19,6 +19,8 @@ import com.example.itunesapi.databinding.ActivityMainBinding
 import com.example.itunesapi.retrofit.Track
 import com.example.itunesapi.retrofit.TrackApi
 import com.example.itunesapi.retrofit.TrackResultResponse
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
@@ -26,15 +28,14 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.HTTP
-import kotlin.collections.ArrayList
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), TrackAdapter.ClickListener{
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
-    val adapter=TrackAdapter()
+    val adapter=TrackAdapter(this)
+    val adapterHistory=TrackAdapter(this)
 
     companion object {
         const val KEY_EDIT_TEXT = "KEY_EDIT_TEXT"
@@ -76,6 +77,12 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerViewSearch.adapter=adapter
 
 
+        binding.rcHistory.adapter=adapterHistory
+        binding.rcHistory.layoutManager=LinearLayoutManager(this)
+        loadData()
+
+
+
         val interceptor = HttpLoggingInterceptor()
         interceptor.level = HttpLoggingInterceptor.Level.BODY
         val client = OkHttpClient.Builder()
@@ -83,6 +90,20 @@ class MainActivity : AppCompatActivity() {
             .build()
         val retrofit=Retrofit.Builder().baseUrl(BASE_URL).client(client).addConverterFactory(GsonConverterFactory.create()).build()
         val itemTrack=retrofit.create(TrackApi::class.java)
+
+        binding.editTextSearch.setOnFocusChangeListener { view, hasFocus ->
+            binding.listHistory.visibility = if (hasFocus && binding.editTextSearch.text.isEmpty()) View.VISIBLE else View.GONE
+            loadData()
+        }
+        binding.clearHistory.setOnClickListener {
+            binding.editTextSearch.setText("")
+            adapterHistory.clear()
+            val inputMethodManager =
+                getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+            inputMethodManager?.hideSoftInputFromWindow(binding.editTextSearch.windowToken, 0)
+
+
+        }
 
 
         fun showPlaceholder(flag: Boolean?, message: String = "") = with(binding){
@@ -156,6 +177,8 @@ class MainActivity : AppCompatActivity() {
 
             }
 
+
+
             override fun onTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 when {
                     s.isNullOrEmpty() -> {
@@ -165,6 +188,8 @@ class MainActivity : AppCompatActivity() {
                         binding.imClearEditText.visibility = viewVisible(s)
                     }
                 }
+                binding.listHistory.visibility = if (binding.editTextSearch.hasFocus() && s?.isEmpty() == true) View.VISIBLE else View.GONE
+                loadData()
             }
 
             override fun afterTextChanged(p0: Editable?) {
@@ -180,6 +205,36 @@ class MainActivity : AppCompatActivity() {
         if (item.itemId == android.R.id.home) finish()
         return super.onOptionsItemSelected(item)
     }
+
+    override fun onClick(track: List<Track>) {
+        adapterHistory.setHistoryList(track)
+        //
+        saveData()
+        //Toast.makeText(this,"Name ${track.artistName}", Toast.LENGTH_LONG).show()
+    }
+
+    private fun loadData() {
+
+        val sharedPreferences = getSharedPreferences("shared_preferences", MODE_PRIVATE)
+        val json =sharedPreferences.getString("courses","[]")
+        val type = object : TypeToken<List<Track>>() {}.type
+        adapterHistory.tracks= Gson().fromJson(json, type)
+        Log.d("MyLog1","${adapterHistory.tracks}")
+
+    }
+
+
+    private fun saveData() {
+        val sharedPreferences = getSharedPreferences("shared_preferences", MODE_PRIVATE)
+        val json = Gson().toJson(adapterHistory.tracks)
+        sharedPreferences.edit().putString("courses", json).apply()
+        Toast.makeText(this, "Saved Array List to Shared preferences. ", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onStop() {
+        super.onStop()
+    }
+
 
 
 
