@@ -40,7 +40,7 @@ class TrackHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
             .transform(RoundedCorners(10))
             .into(artworkUrl100)
         itemView.setOnClickListener {
-            listener.onClick(listOf(track))
+            listener.onClick(track)
         }
     }
 

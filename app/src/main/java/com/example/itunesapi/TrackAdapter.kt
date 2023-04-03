@@ -16,7 +16,6 @@ class TrackAdapter(val listener: ClickListener): RecyclerView.Adapter<TrackHolde
             diffResult.dispatchUpdatesTo(this)
         }
 
-    var historyList=ArrayList<Track>()
 
 
 
@@ -45,13 +44,10 @@ class TrackAdapter(val listener: ClickListener): RecyclerView.Adapter<TrackHolde
     }
 
     fun interface ClickListener {
-        fun onClick(track: List<Track>)
+        fun onClick(track: Track)
     }
 
-    fun setHistoryList(list: List<Track>){
-        tracks.addAll(list)
-        notifyDataSetChanged()
-    }
+
 
 
 

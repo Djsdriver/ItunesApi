@@ -37,6 +37,8 @@ class MainActivity : AppCompatActivity(), TrackAdapter.ClickListener{
     val adapter=TrackAdapter(this)
     val adapterHistory=TrackAdapter(this)
 
+    var searchHistory: SearchHistory? = null
+
     companion object {
         const val KEY_EDIT_TEXT = "KEY_EDIT_TEXT"
         const val BASE_URL = "https://itunes.apple.com"
@@ -77,9 +79,15 @@ class MainActivity : AppCompatActivity(), TrackAdapter.ClickListener{
         binding.recyclerViewSearch.adapter=adapter
 
 
+
+
+
+        val sharedPreferences = getSharedPreferences("shared_preferences", MODE_PRIVATE)
+        searchHistory= SearchHistory(sharedPreferences)
         binding.rcHistory.adapter=adapterHistory
         binding.rcHistory.layoutManager=LinearLayoutManager(this)
-        loadData()
+
+
 
 
 
@@ -93,15 +101,16 @@ class MainActivity : AppCompatActivity(), TrackAdapter.ClickListener{
 
         binding.editTextSearch.setOnFocusChangeListener { view, hasFocus ->
             binding.listHistory.visibility = if (hasFocus && binding.editTextSearch.text.isEmpty()) View.VISIBLE else View.GONE
-            loadData()
+            adapterHistory.tracks = searchHistory!!.loadData()
+            adapterHistory.notifyDataSetChanged()
+
         }
+
         binding.clearHistory.setOnClickListener {
             binding.editTextSearch.setText("")
-            adapterHistory.clear()
-            val inputMethodManager =
-                getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-            inputMethodManager?.hideSoftInputFromWindow(binding.editTextSearch.windowToken, 0)
-
+            searchHistory!!.clearHistoryList()
+            adapterHistory.notifyDataSetChanged()
+            //binding.listHistory.visibility
 
         }
 
@@ -189,7 +198,7 @@ class MainActivity : AppCompatActivity(), TrackAdapter.ClickListener{
                     }
                 }
                 binding.listHistory.visibility = if (binding.editTextSearch.hasFocus() && s?.isEmpty() == true) View.VISIBLE else View.GONE
-                loadData()
+                adapterHistory.tracks = searchHistory!!.loadData()
             }
 
             override fun afterTextChanged(p0: Editable?) {
@@ -206,30 +215,16 @@ class MainActivity : AppCompatActivity(), TrackAdapter.ClickListener{
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onClick(track: List<Track>) {
-        adapterHistory.setHistoryList(track)
-        //
-        saveData()
-        //Toast.makeText(this,"Name ${track.artistName}", Toast.LENGTH_LONG).show()
-    }
+    override fun onClick(track: Track) {
+        Toast.makeText(this,"Name ${track.artistName}", Toast.LENGTH_LONG).show()
+        searchHistory?.addTrack(track = track)
+        searchHistory?.saveData()
+        adapterHistory.notifyDataSetChanged()
 
-    private fun loadData() {
 
-        val sharedPreferences = getSharedPreferences("shared_preferences", MODE_PRIVATE)
-        val json =sharedPreferences.getString("courses","[]")
-        val type = object : TypeToken<List<Track>>() {}.type
-        adapterHistory.tracks= Gson().fromJson(json, type)
-        Log.d("MyLog1","${adapterHistory.tracks}")
 
     }
 
-
-    private fun saveData() {
-        val sharedPreferences = getSharedPreferences("shared_preferences", MODE_PRIVATE)
-        val json = Gson().toJson(adapterHistory.tracks)
-        sharedPreferences.edit().putString("courses", json).apply()
-        Toast.makeText(this, "Saved Array List to Shared preferences. ", Toast.LENGTH_SHORT).show()
-    }
 
     override fun onStop() {
         super.onStop()
